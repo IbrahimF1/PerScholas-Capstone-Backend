@@ -18,7 +18,7 @@ router.post("/", async (req, res, next) => {
         const allTestCases = [...problem.test_cases, ...(customTestCases || [])];
 
         // Run the code with the merged test cases
-        const { passed, total, status, errorMessage } = executeCode(code, allTestCases);
+        const { passed, total, status, errorMessage, results } = executeCode(code, allTestCases);
 
         // Save the submission
         let newSubmission = await Submission.create({
@@ -36,7 +36,7 @@ router.post("/", async (req, res, next) => {
             await User.findByIdAndUpdate(user_id, { $inc: { problems_solved: 1 } });
         }
 
-        res.json({ submission: newSubmission, errorMessage });
+        res.json({ submission: newSubmission, errorMessage, results });
     } catch (err) {
         next(err);
     }
