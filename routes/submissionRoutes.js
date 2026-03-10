@@ -9,16 +9,18 @@ const router = express.Router();
 // POST /submissions - Submit code solution
 router.post("/", async (req, res, next) => {
     try {
-        const { user_id, problem_id, code, language } = req.body;
+        const { user_id, problem_id, code, language, customTestCases } = req.body;
 
-        // 1. Fetch the problem to get test cases
         const problem = await Problem.findById(problem_id);
         if (!problem) return res.status(404).json({ error: "Problem not found" });
 
-        // 2. Run the code using our eval utility
-        const { passed, total, status, errorMessage } = executeCode(code, problem.test_cases);
+        // Merge database test cases with user-provided custom test cases
+        const allTestCases = [...problem.test_cases, ...(customTestCases || [])];
 
-        // 3. Save the submission
+        // Run the code with the merged test cases
+        const { passed, total, status, errorMessage } = executeCode(code, allTestCases);
+
+        // Save the submission
         let newSubmission = await Submission.create({
             user_id,
             problem_id,
@@ -29,16 +31,12 @@ router.post("/", async (req, res, next) => {
             test_cases_total: total
         });
 
-        // 4. Update User Stats
         await User.findByIdAndUpdate(user_id, { $inc: { problems_attempted: 1 } });
         if (status === "passed") {
             await User.findByIdAndUpdate(user_id, { $inc: { problems_solved: 1 } });
         }
 
-        res.json({
-            submission: newSubmission,
-            errorMessage
-        });
+        res.json({ submission: newSubmission, errorMessage });
     } catch (err) {
         next(err);
     }
