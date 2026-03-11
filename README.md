@@ -38,19 +38,15 @@ GEMINI_API_KEY=your_google_gemini_api_key_here
 
 ### Installation & Setup
 
-1. Navigate to the backend directory:
-   ```bash
-   cd Capstone/backend
-   ```
-2. Install dependencies:
+1. Install dependencies:
    ```bash
    npm install
    ```
-3. **Seed the Database:** (Run this once to populate the problems and test cases)
+2. **Seed the Database:** (Run this once to populate the problems and test cases)
    ```bash
    npm run seed
    ```
-4. Start the server:
+3. Start the server:
    ```bash
    npm start
    ```
